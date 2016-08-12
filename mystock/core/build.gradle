@@ -1,0 +1,16 @@
+sourceSets { 
+	 main { 
+		 java.srcDir "$projectDir/src"
+		 resources.srcDir "$projectDir/resources"
+	 } 
+	 
+	 test {
+	 	java.srcDir "$projectDir/test"
+	 	 resources.srcDir "$projectDir/testresources"
+	 }
+   }
+
+dependencies {
+	  compile 'com.github.jnoee:coo.mvc.security:2.2.0'
+      compile 'com.github.jnoee:coo.core.support:2.2.0'
+}

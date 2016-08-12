@@ -1,0 +1,36 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'eclipse-wtp'
+apply plugin: 'maven'
+apply plugin: 'war'
+apply plugin: 'jetty'
+
+webAppDirName = 'webapp'  
+httpPort=8090
+stopPort=8099
+stopKey=123
+sourceCompatibility = 1.8
+
+sourceSets { 
+	 main { 
+		 java.srcDir "$projectDir/src"
+		 resources.srcDir "$projectDir/resources"
+	 } 
+	 
+	 test {
+	 	java.srcDir "$projectDir/test"
+	 	 resources.srcDir "$projectDir/testresources"
+	 }
+   }
+
+dependencies {
+	providedCompile  'javax.servlet:servlet-api:2.5' 
+    providedCompile  'javax.servlet:jstl:1.2'    
+    providedCompile  'javax.el:javax.el-api:2.2.4'    
+    providedCompile  'org.glassfish.web:javax.el:2.2.4'    
+      
+    compile 'org.jsoup:jsoup:1.9.2'
+    compile 'org.apache.httpcomponents:httpclient:4.4.1'
+    compile 'mysql:mysql-connector-java:5.1.26'
+    compile project(":core")  
+}
