@@ -3,6 +3,7 @@ package me.wh.stock.admin.entity;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -33,7 +34,9 @@ public class Ticket implements Serializable {
     @GeneratedValue(generator = "Assigned")
     @GenericGenerator(name = "Assigned", strategy = "org.hibernate.id.Assigned")
     @DocumentId
-    private String code;
+    @Column(name="code")
+    private String id;
+    @Field(analyze = Analyze.NO)
     private String name;
     private String industry;
     private String area;
@@ -45,7 +48,7 @@ public class Ticket implements Serializable {
     private double outstanding; // 流通股本
     private double totals;
     private double price;
-    private double pe;
+    private double pe;  
     private double pb;
     private double bvps;
     private double esp;
@@ -64,12 +67,13 @@ public class Ticket implements Serializable {
         this.name = name;
     }
 
-    public String getCode() {
-        return code;
+
+    public String getId() {
+        return id;
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getIndustry() {

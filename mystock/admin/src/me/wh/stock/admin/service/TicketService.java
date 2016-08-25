@@ -12,15 +12,17 @@ import javax.annotation.Resource;
 
 import me.wh.stock.admin.entity.Ticket;
 
+import org.apache.lucene.search.SortField;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.sun.mail.util.BEncoderStream;
-
+import coo.base.model.Page;
 import coo.base.util.BeanUtils;
 import coo.base.util.DateUtils;
 import coo.core.hibernate.dao.Dao;
+import coo.core.hibernate.search.FullTextCriteria;
+import coo.core.model.SearchModel;
 
 @Service
 public class TicketService {
@@ -32,10 +34,10 @@ public class TicketService {
 
    
     public boolean saveOrUpdate(Ticket t) {
-        if (t == null || t.getCode() == null) {
+        if (t == null || t.getId() == null) {
             return false;
         }
-        Ticket dbticket = ticketDao.get(t.getCode());
+        Ticket dbticket = ticketDao.get(t.getId());
         if (dbticket == null) {
             ticketDao.save(t);
         } else {
@@ -64,7 +66,7 @@ public class TicketService {
                 }
                 // code,name,industry,area,pe,outstanding,totals,totalAssets,liquidAssets,fixedAssets,reserved,reservedPerShare,esp,bvps,pb,timeToMarket
                 Ticket t = new Ticket();
-                t.setCode(values[0]);
+                t.setId(values[0]);
                 t.setName(values[1]);
                 t.setIndustry(values[2]);
                 t.setArea(values[3]);
@@ -91,5 +93,13 @@ public class TicketService {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    @Transactional(readOnly = true)
+    public Page<Ticket> searchTicket(SearchModel searchModel) {
+        FullTextCriteria criteria = ticketDao.createFullTextCriteria();
+        criteria.addSortDesc("timeToMarket", SortField.Type.STRING);
+        Page<Ticket> page=ticketDao.searchPage(criteria, searchModel);
+//        page.setContents(ticketDao.getAll());
+        return page;
     }
 }

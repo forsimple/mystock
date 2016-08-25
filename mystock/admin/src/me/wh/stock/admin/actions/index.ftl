@@ -43,8 +43,8 @@
                 </div>
                 <div id="navMenu">
                     <ul>
-                        <@sec.any name="COMPANY_MANAGE,EMPLOYEE_MANAGE">
-                        	<li><@s.a href="/company/menu"><span class="fa-cubes">公司管理</span></@s.a></li>
+                        <@sec.any name="TICKET_LIST,TICKET_SYNC">
+                        	<li><@s.a href="/ticket/menu"><span class="fa-cubes">股票管理</span></@s.a></li>
                         </@sec.any>
                         <@sec.any name="ADMIN">
 	                        <li><@s.a href="/system/menu"><span class="fa-sitemap">系统管理</span></@s.a></li>

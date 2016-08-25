@@ -18,6 +18,5 @@ public class MenuAction {
 	 */
 	@RequestMapping("menu")
 	public void menu() {
-	    System.out.println("done");
 	}
 }
