@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<permissions>
+	<!-- 示例模块 -->
+	<permission-group name="股票管理" order="1">
+		<permission id="11" name="股票列表" code="TICKET_LIST" depends="" />
+		<permission id="12" name="同步股票" code="TICKET_SYNC" depends="" />
+	</permission-group>
+</permissions>
