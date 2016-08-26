@@ -43,11 +43,10 @@ public class Ticket implements Serializable {
     private double totalAssets;
     private double liquidAssets;
     private double fixedAssets;
-    private double reserved;
-    private double reservedPerShare;
+    private double reserved; //公积金
+    private double reservedPerShare;  
     private double outstanding; // 流通股本
     private double totals;
-    private double price;
     private double pe;  
     private double pb;
     private double bvps;
@@ -98,14 +97,6 @@ public class Ticket implements Serializable {
 
     public void setReserved(double reserved) {
         this.reserved = reserved;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
     }
 
     public double getPe() {

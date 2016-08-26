@@ -11,8 +11,10 @@ public class TicketTimerService {
 
     @Autowired
     private TicketService ticketServcie;
+    
     @Scheduled(cron="0 30 15 * * ?")
     public void syscTicket(){
         ticketServcie.updateAllTicket();
     }
+    
 }

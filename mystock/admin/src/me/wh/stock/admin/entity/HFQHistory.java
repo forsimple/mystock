@@ -1,17 +1,13 @@
 package me.wh.stock.admin.entity;
 
 import java.io.Serializable;
-import java.util.Date;
 
-import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
-import org.hibernate.annotations.GenericGenerator;
+import me.wh.stock.core.search.JsonBridge;
+
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
@@ -29,14 +25,13 @@ import coo.core.hibernate.search.DateBridge;
 public class HFQHistory implements Serializable {
      
     private static final long serialVersionUID = -6515776208870465543L;
-    @Id
-    @GeneratedValue 
+    @EmbeddedId
     @DocumentId
+    @FieldBridge(impl = JsonBridge.class)
     private HFQHistoryKey key;
-    
     @Field(analyze = Analyze.NO)
-    private String code;
     private double open;
+    @Field(analyze = Analyze.NO)
     private double close;
     private double high;
     private double low;
@@ -49,12 +44,7 @@ public class HFQHistory implements Serializable {
     public void setKey(HFQHistoryKey key) {
         this.key = key;
     }
-    public String getCode() {
-        return code;
-    }
-    public void setCode(String code) {
-        this.code = code;
-    }
+    
     public double getOpen() {
         return open;
     }
