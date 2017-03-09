@@ -10,6 +10,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.web.context.WebApplicationContext;
 
  
 public class TicketServiceTest   {
@@ -20,7 +21,6 @@ public class TicketServiceTest   {
   
     @Test
     public void saveTest() throws MalformedURLException, IOException{
-        
         
         ClassPathXmlApplicationContext content=new ClassPathXmlApplicationContext("app-context.xml");
         TicketTimerService service = content.getBean(TicketTimerService.class);

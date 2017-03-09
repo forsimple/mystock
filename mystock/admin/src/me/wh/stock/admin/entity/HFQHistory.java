@@ -14,8 +14,6 @@ import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Indexed;
 
-import coo.core.hibernate.search.DateBridge;
-
 /**
  * 基本信息。
  */

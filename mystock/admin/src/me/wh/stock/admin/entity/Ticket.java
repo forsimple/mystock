@@ -17,6 +17,7 @@ import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.SortableField;
 
 import coo.core.hibernate.search.DateBridge;
 
@@ -51,7 +52,9 @@ public class Ticket implements Serializable {
     private double pb;
     private double bvps;
     private double esp;
+    private double price;  
     @Temporal(TemporalType.DATE)
+    @SortableField
     @Field(analyze = Analyze.NO, bridge = @FieldBridge(impl = DateBridge.class))
     private Date timeToMarket;
     @Temporal(TemporalType.TIMESTAMP)
@@ -193,6 +196,14 @@ public class Ticket implements Serializable {
 
     public void setTotals(double totals) {
         this.totals = totals;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
     }
 
 }

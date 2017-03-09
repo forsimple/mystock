@@ -22,6 +22,10 @@
 					<th width="150">每股公积金</th>
 					<th width="150">总股本</th>
 					<th width="150">流通股本</th>
+					<th width="150">bvps</th>
+					<th width="150">esp</th>
+					<th width="150">上市时间</th>
+					<th width="150">更新时间</th>
                 </tr>
             </thead>
             <tbody>
@@ -40,6 +44,12 @@
                     <td>${ticket.outstanding}</td>
                     <td>${ticket.bvps}</td>
                     <td>${ticket.esp}</td>
+                    <td>${ticket.timeToMarket}</td>
+                    <td> 
+                    <#if  ticket.updateTime!=null>
+                       ${ticket.updateTime}
+                     </#if>
+                     </td>
                 </tr>
                 </#list>
             </tbody>

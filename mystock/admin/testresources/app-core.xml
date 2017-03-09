@@ -98,6 +98,6 @@
 	<task:scheduler id="taskScheduler" pool-size="${task.scheduler.pool.size:20}" />
 	<!-- 启用annotation-driven -->
 	<task:annotation-driven executor="taskExecutor" scheduler="taskScheduler" />
-	<!-- 加载coo.core下的组件 -->
-	<context:component-scan base-package="coo.core" />
+	
+	
 </beans>

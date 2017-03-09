@@ -8,6 +8,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -15,10 +16,16 @@ import java.util.concurrent.Executors;
 
 import javax.annotation.Resource;
 
+import me.wh.stock.admin.entity.HFQHistory;
+import me.wh.stock.admin.entity.HFQHistoryKey;
 import me.wh.stock.admin.entity.Ticket;
 import me.wh.stock.admin.timer.HfqHistoryThread;
+import me.wh.stock.admin.util.JsoupUtils;
+import me.wh.stock.core.util.JacksonUtil;
 
 import org.apache.lucene.search.SortField;
+import org.joda.time.DateTime;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,10 +45,15 @@ public class TicketService {
 
     @Resource
     protected Dao<Ticket> ticketDao;
+    @Resource
+    protected Dao<HFQHistory> hFQHistoryDao;
+
     @Value("${sina.allticket.url}")
     private String url;
+    @Value("${sina.houfuquantrade.url}")
+    private String hfqUrlFormatter;
     private static final Logger LOG = LoggerFactory.getLogger(TicketService.class.getName());
-    
+
     public boolean saveOrUpdate(Ticket t) {
         if (t == null || t.getId() == null) {
             return false;
@@ -70,7 +82,7 @@ public class TicketService {
                     continue;
                 }
                 String[] values = line.split(",");
-                if (values.length != 16) {
+                if (values.length < 16) {
                     continue;
                 }
                 // code,name,industry,area,pe,outstanding,totals,totalAssets,liquidAssets,fixedAssets,reserved,reservedPerShare,esp,bvps,pb,timeToMarket
@@ -93,6 +105,7 @@ public class TicketService {
                 if (values[15] != null && values[15].length() == 8) {
                     t.setTimeToMarket(DateUtils.parse(values[15]));
                 }
+                t.setUpdateTime(new Date());
                 saveOrUpdate(t);
             }
         } catch (MalformedURLException e) {
@@ -118,15 +131,15 @@ public class TicketService {
         if (CollectionUtils.isEmpty(all)) {
             return true;
         }
-        
-        final ExecutorService exec = Executors.newFixedThreadPool(10); 
-        List<Ticket> groupTicket=new ArrayList<Ticket>();
-        for(int i=0;i<all.size();i++){
+
+        final ExecutorService exec = Executors.newFixedThreadPool(10);
+        List<Ticket> groupTicket = new ArrayList<Ticket>();
+        for (int i = 0; i < all.size(); i++) {
             groupTicket.add(all.get(i));
-            if(groupTicket.size()%10==0){
-                CountDownLatch latch=new CountDownLatch(groupTicket.size());//两个工人的协作 
+            if (groupTicket.size() % 10 == 0) {
+                CountDownLatch latch = new CountDownLatch(groupTicket.size());
                 try {
-                    for(int j=0;j<groupTicket.size();j++){
+                    for (int j = 0; j < groupTicket.size(); j++) {
                         exec.execute(new HfqHistoryThread(groupTicket.get(j), latch));
                     }
                     latch.await();
@@ -136,11 +149,11 @@ public class TicketService {
                 }
             }
         }
-        
-        if(groupTicket.size()>0){
-            CountDownLatch latch=new CountDownLatch(groupTicket.size());//两个工人的协作 
+
+        if (groupTicket.size() > 0) {
+            CountDownLatch latch = new CountDownLatch(groupTicket.size());// 两个工人的协作
             try {
-                for(int j=0;j<groupTicket.size();j++){
+                for (int j = 0; j < groupTicket.size(); j++) {
                     exec.execute(new HfqHistoryThread(groupTicket.get(j), latch));
                 }
                 latch.await();
@@ -154,15 +167,112 @@ public class TicketService {
     }
 
     public boolean syncTicketHfqHistory(Ticket t) {
-        boolean result = false;
+        return syncTicketHfqHistory(t, null, null);
+    }
+
+    public boolean syncTicketHfqHistory(Ticket t, Date start, Date end) {
+
+        if (start == null) {
+            start = t.getTimeToMarket();
+        }
+        if (end == null) {
+            end = new Date();
+        }
+        boolean result = true;
+        String id = t.getId();
+
+        // String
+        // url=String.format(TicketConstant.LIVE_DATA_URL,"http://",TicketConstant.pageMap.get("sinahq",id,);
+        List<Integer[]> seasons = getSeasons(start, end);
+        List<HFQHistory> allHis = new ArrayList<HFQHistory>();
+        if (seasons != null && seasons.size() > 0) {
+            for (Integer[] s : seasons) {
+                String hfqUrl = String.format(hfqUrlFormatter, "http://", id, s[0], s[1]);
+                List<List<String>> results = JsoupUtils.getTableById(hfqUrl, "FundHoldSharesTable", 2);
+                if (CollectionUtils.isEmpty(results)) {
+                    return result;
+                }
+                for (List<String> row : results) {
+                    HFQHistory his = new HFQHistory();
+                    HFQHistoryKey key = new HFQHistoryKey();
+                    his.setKey(key);
+                    key.setTradeDate(DateUtils.parse(row.get(0)));
+                    key.setCode(id);
+
+                    his.setOpen(Double.parseDouble(row.get(1)));
+                    his.setHigh(Double.parseDouble(row.get(2)));
+                    his.setClose(Double.parseDouble(row.get(3)));
+                    his.setLow(Double.parseDouble(row.get(4)));
+                    his.setVolume(Double.parseDouble(row.get(5)));
+                    his.setAmount(Double.parseDouble(row.get(6)));
+                    his.setFactor(Double.parseDouble(row.get(6)));
+                    allHis.add(his);
+                }
+
+            }
+
+        }
+
+        if (allHis.size() > 0) {
+            for (HFQHistory his : allHis) {
+                if (hFQHistoryDao.get(his.getKey()) == null) {
+                    hFQHistoryDao.save(his);
+                }
+            }
+        }
 
         return result;
     }
 
-    public boolean syncAllTicketHfqHistoryToday() {
-        boolean result = false;
+    public List<Integer[]> getSeasons(Date start, Date end) {
 
-        return result;
+        List<Integer[]> res = new ArrayList<Integer[]>();
+        DateTime startTime = new DateTime(start);
+        DateTime endTime = new DateTime(end);
+
+        Integer[] firstarr = new Integer[2];
+        firstarr[0] = startTime.getYear();
+        firstarr[1] = (startTime.getMonthOfYear() - 1) / 3 + 1;
+        res.add(firstarr);
+
+        int endSeason = (endTime.getMonthOfYear() - 1) / 3 + 1;
+
+        while (true) {
+            int startSeason = (startTime.getMonthOfYear() - 1) / 3 + 1;
+            System.out.println(startTime.getYear() + "\t" + startSeason);
+            if (startTime.getYear() == endTime.getYear() && startSeason == endSeason) {
+                return res;
+            } else {
+                startTime = startTime.plusMonths(3);
+                Integer[] arr = new Integer[2];
+                arr[0] = startTime.getYear();
+                arr[1] = (startTime.getMonthOfYear() - 1) / 3 + 1;
+                res.add(arr);
+            }
+        }
+    }
+
+    @Test
+    public void testGetSeasons() {
+        DateTime start = new DateTime("2016-07-11");
+        String json = JacksonUtil.toJson(getSeasons(start.toDate(), new DateTime().toDate()));
+        System.out.println(json);
+    }
+
+    public static void main(String[] args) {
+        DateTime startTime = new DateTime();
+        startTime = startTime.plusMonths(3);
+        Integer[] arr = new Integer[2];
+        arr[0] = startTime.getYear();
+        arr[1] = (startTime.getMonthOfYear() - 1) / 3 + 1;
+
+        System.out.println(startTime.getYear() + "\t" + startTime.getMonthOfYear());
+
+        TicketService service = new TicketService();
+        DateTime start = new DateTime("2016-08-11");
+        List<Integer[]> res = service.getSeasons(start.toDate(), new DateTime().toDate());
+        System.out.println(res);
+
     }
 
 }

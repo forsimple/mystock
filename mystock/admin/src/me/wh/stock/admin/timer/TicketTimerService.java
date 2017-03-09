@@ -1,19 +1,21 @@
 package me.wh.stock.admin.timer;
 
+import javax.annotation.Resource;
+
 import me.wh.stock.admin.service.TicketService;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
 public class TicketTimerService {
 
-    @Autowired
+    @Resource
     private TicketService ticketServcie;
     
-    @Scheduled(cron="0 30 15 * * ?")
+    @Scheduled(cron="0 04 21 * * ?")
     public void syscTicket(){
+        System.out.println("start.........");
         ticketServcie.updateAllTicket();
     }
     

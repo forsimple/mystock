@@ -24,5 +24,7 @@
 	</jdbc:initialize-database> -->
 
 	<!-- 加载应用组件 -->
+	<!-- 加载coo.core下的组件 -->
+	<context:component-scan base-package="coo.core" />
 	<context:component-scan base-package="me.wh.stock" />
 </beans>
