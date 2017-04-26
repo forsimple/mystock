@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import coo.base.model.Page;
-import coo.core.model.SearchModel;
+import coo.core.model.DateRangeSearchModel;
 import coo.core.security.annotations.Auth;
 import coo.mvc.dwz.DwzResultBuild;
 
@@ -30,9 +30,10 @@ public class TicketAction {
                .reloadNavTab().build();
     }
     @RequestMapping("ticket-list")
-    public void list(Model model, SearchModel searchModel) {
+    public void list(Model model, DateRangeSearchModel searchModel) {
         Page<Ticket> page= ticketServcie.searchTicket(searchModel);
         model.addAttribute("ticketPage",page );
+        model.addAttribute("searchModel",searchModel );
     }
     
 }

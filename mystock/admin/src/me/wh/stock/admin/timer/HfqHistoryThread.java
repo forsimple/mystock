@@ -4,7 +4,7 @@ import java.util.concurrent.CountDownLatch;
 
 import me.wh.stock.admin.entity.Ticket;
 import me.wh.stock.admin.service.TicketService;
-import me.wh.stock.core.util.SpringContextUtil;
+import coo.core.util.SpringUtils;
 
 public class HfqHistoryThread implements Runnable {
     private Ticket ticket;
@@ -17,7 +17,7 @@ public class HfqHistoryThread implements Runnable {
 
     @Override
     public void run() {
-        TicketService service= (TicketService) SpringContextUtil.getBean("ticketService");
+        TicketService service= (TicketService) SpringUtils.getBean("ticketService");
         service.syncTicketHfqHistory(ticket);
         latch.countDown();
     }

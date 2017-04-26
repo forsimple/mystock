@@ -22,7 +22,7 @@ public class JsoupTest {
     public void parseTableTest(){
         String urlFormat="http://vip.stock.finance.sina.com.cn/corp/go.php/vMS_FuQuanMarketHistory/stockid/%s.phtml?year=%d&jidu=%d";
         try {
-            Document doc = Jsoup.connect(String.format(urlFormat, "000002",2016,3)).get();
+            Document doc = Jsoup.connect(String.format(urlFormat, "000002",2017,1)).get();
             Elements trs=doc.select("#FundHoldSharesTable tr");
             if(trs!=null){
                 List<List<String>> results=new ArrayList<List<String>>();

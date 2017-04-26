@@ -1,6 +1,8 @@
 <div class="page">
     <div class="pageHeader">
-        <@dwz.pageForm action="/company/employee-list" />
+        <@dwz.pageForm action="/ticket/ticket-list"  >
+	        <li>   上市时间: <input name="startDate" value=" ${ticket.startDate}" class="date">   <input name="endDate" value=" ${ticket.endDate}" class="date"> </li>
+        </@dwz.pageForm>
     </div>
     <div class="pageContent">
         <div class="panelBar">

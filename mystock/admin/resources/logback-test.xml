@@ -5,9 +5,25 @@
 			<pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %m \(%F:%L\)%n</pattern>
 		</encoder>
 	</appender>
-	<logger name="coo" level="DEBUG" />
-	<logger name="coo.boot" level="DEBUG" />
-	<root level="WARN">
+	<appender name="file"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${user.home}/.coo.boot/logs/coo.boot.%d.%i.log</fileNamePattern>
+			<timeBasedFileNamingAndTriggeringPolicy
+				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>10MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+			<maxHistory>30</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %m \(%F:%L\)%n</pattern>
+		</encoder>
+	</appender>
+	<logger name="coo" level="INFO" />
+	<logger name="me.wh.stock" level="INFO" />
+	<logger name="coo.boot" level="INFO" />
+	<root level="INFO">
 		<appender-ref ref="console" />
+		<appender-ref ref="file" />
 	</root>
 </configuration>

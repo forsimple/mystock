@@ -20,8 +20,9 @@
 		</encoder>
 	</appender>
 	<logger name="coo" level="INFO" />
+	<logger name="me.wh.stock" level="INFO" />
 	<logger name="coo.boot" level="INFO" />
-	<root level="WARN">
+	<root level="INFO">
 		<appender-ref ref="console" />
 		<appender-ref ref="file" />
 	</root>

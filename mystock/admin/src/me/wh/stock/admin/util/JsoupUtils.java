@@ -14,7 +14,18 @@ public class JsoupUtils {
     public static List<List<String>> getTableById(String url, String tableId, int skipRowNum) {
         List<List<String>> results = new ArrayList<List<String>>();
         try {
-            Document doc = Jsoup.connect(url).get();
+            int retry=3;
+            Document doc=null;
+            try {
+                doc = Jsoup.connect(url).get();
+            } catch (Exception e) {
+                 try {
+                    Thread.sleep(2000);
+                    doc = Jsoup.connect(url).get();
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
+            }
             Elements trs = doc.select("#"+tableId+" tr");
             if (trs != null) {
                 int size = trs.size();
@@ -25,9 +36,7 @@ public class JsoupUtils {
                     List<String> oneRow = new ArrayList<String>();
                     for (Element td : tr.children()) {
                         oneRow.add(td.text());
-                        System.out.print(td.text() + "\t");
                     }
-                    System.out.println();
                     results.add(oneRow);
                 }
             }

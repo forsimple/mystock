@@ -108,6 +108,7 @@ public class TicketService {
                 t.setUpdateTime(new Date());
                 saveOrUpdate(t);
             }
+            LOG.info("更新完成。");
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (UnsupportedEncodingException e) {
@@ -125,7 +126,13 @@ public class TicketService {
         return page;
     }
 
-    public boolean syncAllTicketHfqHistory(Ticket t) {
+    /**
+     * 同步后复权数据
+     * @param t 
+     * @return 
+     */
+    @Transactional
+    public boolean syncAllTicketHfqHistory( ) {
         boolean result = false;
         List<Ticket> all = ticketDao.getAll();
         if (CollectionUtils.isEmpty(all)) {
@@ -136,7 +143,7 @@ public class TicketService {
         List<Ticket> groupTicket = new ArrayList<Ticket>();
         for (int i = 0; i < all.size(); i++) {
             groupTicket.add(all.get(i));
-            if (groupTicket.size() % 10 == 0) {
+            if (groupTicket.size() % 5 == 0) {
                 CountDownLatch latch = new CountDownLatch(groupTicket.size());
                 try {
                     for (int j = 0; j < groupTicket.size(); j++) {
@@ -144,6 +151,7 @@ public class TicketService {
                     }
                     latch.await();
                     groupTicket.clear();
+                    LOG.info("ONE BATCH DONE !");
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -165,13 +173,14 @@ public class TicketService {
         LOG.info("同步完成。。。");
         return result;
     }
-
+    @Transactional
     public boolean syncTicketHfqHistory(Ticket t) {
         return syncTicketHfqHistory(t, null, null);
     }
 
+    @Transactional
     public boolean syncTicketHfqHistory(Ticket t, Date start, Date end) {
-
+        LOG.info("Start: sync ticket : "+t.getId());
         if (start == null) {
             start = t.getTimeToMarket();
         }
@@ -187,10 +196,10 @@ public class TicketService {
         List<HFQHistory> allHis = new ArrayList<HFQHistory>();
         if (seasons != null && seasons.size() > 0) {
             for (Integer[] s : seasons) {
-                String hfqUrl = String.format(hfqUrlFormatter, "http://", id, s[0], s[1]);
+                String hfqUrl= String.format(hfqUrlFormatter,  id, s[0], s[1]);
                 List<List<String>> results = JsoupUtils.getTableById(hfqUrl, "FundHoldSharesTable", 2);
                 if (CollectionUtils.isEmpty(results)) {
-                    return result;
+                  continue;
                 }
                 for (List<String> row : results) {
                     HFQHistory his = new HFQHistory();
@@ -220,7 +229,7 @@ public class TicketService {
                 }
             }
         }
-
+        LOG.info("End: sync ticket : "+t.getId());
         return result;
     }
 
@@ -239,7 +248,7 @@ public class TicketService {
 
         while (true) {
             int startSeason = (startTime.getMonthOfYear() - 1) / 3 + 1;
-            System.out.println(startTime.getYear() + "\t" + startSeason);
+//            System.out.println(startTime.getYear() + "\t" + startSeason);
             if (startTime.getYear() == endTime.getYear() && startSeason == endSeason) {
                 return res;
             } else {
